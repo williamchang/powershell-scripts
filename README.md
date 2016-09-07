@@ -1,1 +1,22 @@
-# powershell-scripts
+# My PowerShell Scripts
+
+New to PowerShell?
+------------------
+
+If you are new to PowerShell and would like to learn more, we recommend reviewing the [Getting Started][] documentation.
+
+[Getting Started]: https://github.com/PowerShell/PowerShell/tree/master/docs/learning-powershell
+
+Developing and Contributing
+---------------------------
+
+Please see the [Contribution Guide][] for how to develop and contribute.
+
+[Contribution Guide]: https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md
+
+Legal and Licensing
+-------------------
+
+My PowerShell Scripts are licensed under the [LGPL license][].
+
+[LGPL license]: LICENSE.txt
