@@ -14,8 +14,8 @@ sqlcmd.exe -a 32767 -x -i C:\path\to\file.sql
 
 PowerShell Examples:
 powershell.exe Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
-powershell.exe -File .\PowerShell_Sandbox.ps1
-powershell.exe -File C:\Temp\PowerShell_Sandbox.ps1
+powershell.exe -File .\MSSQL_GenerateSqlScriptFromDatabase.ps1
+powershell.exe -File C:\Temp\MSSQL_GenerateSqlScriptFromDatabase.ps1
 
 References:
 https://www.simple-talk.com/sql/database-administration/automated-script-generation-with-powershell-and-smo/
