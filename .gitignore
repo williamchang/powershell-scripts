@@ -1,0 +1,5 @@
+# Set certain folders/files or patterns to be ignored.
+.svn/
+*.user
+*.suo
+.DS_Store
