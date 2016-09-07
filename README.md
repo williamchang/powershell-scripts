@@ -4,7 +4,7 @@ Created by [William Chang](http://williamchang.org).
 
 ## New to PowerShell?
 
-If you are new to PowerShell and would like to learn more, we recommend reviewing the [Getting Started][] documentation.
+If you are new to PowerShell and would like to learn more, I recommend reviewing the [Getting Started][] documentation.
 
 [Getting Started]: https://github.com/PowerShell/PowerShell/tree/master/docs/learning-powershell
 
@@ -16,6 +16,6 @@ Please see the [Contribution Guide][] for how to develop and contribute.
 
 ## Legal and Licensing
 
-My PowerShell Scripts are licensed under the [LGPL license][].
+My scripts are licensed under the [LGPL license][].
 
 [LGPL license]: LICENSE.txt
