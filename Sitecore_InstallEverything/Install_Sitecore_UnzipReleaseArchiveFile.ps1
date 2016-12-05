@@ -6,7 +6,7 @@ Install Sitecore Unzip Release Archive File
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2016-09-04
+Modified: 2016-12-05
 
 #>
 
@@ -42,6 +42,15 @@ function Invoke-Unzip {
     $shell.NameSpace($Target).CopyHere($sourceItems)
 }
 
+function Add-Folder {
+    param(
+        [string]$Target
+    )
+    if(!(Test-Path -Path $Target)) {
+        New-Item -Path $Target -ItemType Directory | Out-Null
+    }
+}
+
 function Invoke-Main {
     Write-Output ('')
     Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
@@ -53,7 +62,7 @@ function Invoke-Main {
     Write-Output ('Zip File Name : {0}' -f $zipFileName)
     Write-Output ('Zip File Path : {0}' -f $zipFilePath)
     Write-Output ('')
-    
+
     Write-Output ('==========')
 
     $zipCmsDataSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Data'
@@ -69,7 +78,7 @@ function Invoke-Main {
     Write-Output ('')
     Write-Output ('Zip Extracted CMS Data')
     Write-Output ('')
-    
+
     Write-Output ('==========')
 
     $zipCmsDatabasesSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Databases'
@@ -85,9 +94,9 @@ function Invoke-Main {
     Write-Output ('')
     Write-Output ('Zip Extracted CMS Databases')
     Write-Output ('')
-    
+
     Write-Output ('==========')
-    
+
     $zipCmsWebsiteSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Website'
     $zipCmsWebsiteTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
 
@@ -100,6 +109,26 @@ function Invoke-Main {
 
     Write-Output ('')
     Write-Output ('Zip Extracted CMS Website')
+    Write-Output ('')
+
+    Write-Output ('==========')
+
+    $zipCmsMediaLibraryTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.medialibrary'
+    $zipCmsMediaLibraryCacheTarget = Join-Path -Path $zipCmsMediaLibraryTarget -ChildPath 'MediaCache'
+    $zipCmsMediaLibraryFilesTarget = Join-Path -Path $zipCmsMediaLibraryTarget -ChildPath 'MediaFiles'
+
+    Write-Output ('')
+    Write-Output ('Folder Target of CMS Media Library : {0}' -f $zipCmsMediaLibraryTarget)
+    Write-Output ('Folder Target of CMS Media Library Cache : {0}' -f $zipCmsMediaLibraryCacheTarget)
+    Write-Output ('Folder Target of CMS Media Library Files : {0}' -f $zipCmsMediaLibraryFilesTarget)
+    Write-Output ('')
+
+    Add-Folder -Target $zipCmsMediaLibraryTarget
+    Add-Folder -Target $zipCmsMediaLibraryCacheTarget
+    Add-Folder -Target $zipCmsMediaLibraryFilesTarget
+
+    Write-Output ('')
+    Write-Output ('Folders Created CMS Media Library')
     Write-Output ('')
 }
 

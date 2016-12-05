@@ -6,7 +6,7 @@ Install Sitecore Configure Files
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2016-09-06
+Modified: 2016-12-05
 
 #>
 
@@ -17,6 +17,7 @@ $currentFolderPath = Get-Location
 $cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
 $cmsDataFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.data'
 $cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
+$cmsMediaLibraryFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.medialibrary'
 
 $cmsWebConfigChildPath = 'Web.config'
 $cmsSitecoreConfigChildPath = Join-Path -Path 'App_Config' -ChildPath 'Sitecore.config'
@@ -102,6 +103,43 @@ function Set-SitecoreDataSetting {
     }
 }
 
+function Set-SitecoreMediaSetting {
+    param(
+        [string]$ConfigPath,
+        [string]$MediaLibraryFolderPath
+    )
+    if((Test-Path -Path $ConfigPath) -and (Test-Path -Path $MediaLibraryFolderPath)) {
+        $xmlDocument = (Get-Content $ConfigPath) -as [xml]
+
+        if(($xmlDocument.'sitecore'.'sc.variable' | Where-Object {$_.'name' -eq 'mediaLibraryFolder'}) -ne $Null) {
+            $xmlNode = $xmlDocument.'sitecore'.'sc.variable' | Where-Object {$_.'name' -eq 'mediaLibraryFolder'}
+            $xmlNode.'value' = $MediaLibraryFolderPath
+        } else {
+            $xmlNode = $xmlDocument.'sitecore'.'sc.variable' | Where-Object {$_.'name' -eq 'mediaFolder'}
+            $xmlNewNode = $xmlDocument.CreateElement('sc.variable')
+            $xmlNewNode.SetAttribute('name', 'mediaLibraryFolder')
+            $xmlNewNode.SetAttribute('value', $MediaLibraryFolderPath)
+            $xmlDocument.'sitecore'.InsertAfter($xmlNewNode, $xmlNode) | Out-Null
+        }
+
+        $xmlNode = $xmlDocument.'sitecore'.'scheduling'.'agent' | Where-Object {$_.'type' -eq 'Sitecore.Tasks.CleanupAgent'}
+        $xmlNodeNode = $xmlNode.'files'.'remove' | Where-Object {$_.'folder' -eq '/App_Data/MediaCache'}
+        if($xmlNodeNode -ne $Null) {
+            $xmlNodeNode.'folder' = '$(mediaLibraryFolder)/MediaCache'
+        }
+
+        $xmlNode = $xmlDocument.'sitecore'.'settings'.'setting' | Where-Object {$_.'name' -eq 'Media.CacheFolder'}
+        $xmlNode.'value' = '$(mediaLibraryFolder)/MediaCache'
+ 
+        $xmlNode = $xmlDocument.'sitecore'.'settings'.'setting' | Where-Object {$_.'name' -eq 'Media.FileFolder'}
+        $xmlNode.'value' = '$(mediaLibraryFolder)/MediaFiles'
+
+        $xmlDocument.Save($ConfigPath)
+    } else {
+        Write-Error 'Error in Set-SitecoreMediaSetting function.'
+    }
+}
+
 function Set-SitecoreCmsOnlyMode {
     param(
         [string]$WebrootFolderPath
@@ -154,13 +192,16 @@ function Invoke-Main {
 
     Write-Output ('')
     Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
+    Write-Output ('CMS Data Folder Path : {0}' -f $cmsDataFolderPath)
     Write-Output ('CMS Database Folder Path : {0}' -f $cmsDatabaseFolderPath)
+    Write-Output ('CMS Media Library Folder Path : {0}' -f $cmsMediaLibraryFolderPath)
     Write-Output ('')
 
     #Set-WebDebugSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsWebConfigChildPath)
-    Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseFolderPath $cmsDatabaseFolderPath
-    Set-SitecoreDataSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -DataFolderPath $cmsDataFolderPath
-    Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
+    #Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseFolderPath $cmsDatabaseFolderPath
+    #Set-SitecoreDataSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -DataFolderPath $cmsDataFolderPath
+    Set-SitecoreMediaSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -MediaLibraryFolderPath $cmsMediaLibraryFolderPath
+    #Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
 }
 
 Invoke-Main
