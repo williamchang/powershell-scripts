@@ -94,6 +94,7 @@ function Invoke-Main {
 
     Write-Output ('==========')
 
+    $sqlDatabaseCoreName = 'Sitecore_Core'
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Core.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Core.ldf'
 
@@ -102,10 +103,11 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName 'Sitecore_Core' -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseCoreName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 
+    $sqlDatabaseMasterName = 'Sitecore_Master'
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Master.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Master.ldf'
 
@@ -114,10 +116,11 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName 'Sitecore_Master' -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseMasterName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 
+    $sqlDatabaseWebName = 'Sitecore_Web'
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Web.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Web.ldf'
 
@@ -126,11 +129,11 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName 'Sitecore_Web' -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseWebName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 
-    Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseCoreName 'Sitecore_Core' -DatabaseMasterName 'Sitecore_Master' -DatabaseWebName 'Sitecore_Web'
+    Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseCoreName $sqlDatabaseCoreName -DatabaseMasterName $sqlDatabaseMasterName -DatabaseWebName $sqlDatabaseWebName
 }
 
 Invoke-Main
