@@ -18,8 +18,6 @@ $cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com
 $cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
 $cmsDatabaseConfigChildPath = Join-Path -Path 'App_Config' -ChildPath 'ConnectionStrings.config'
 
-$executableSqlcmdPath = 'sqlcmd.exe'
-
 function Add-MicrosoftSqlDatabase {
     param(
         [string]$SqlCmdPath,
