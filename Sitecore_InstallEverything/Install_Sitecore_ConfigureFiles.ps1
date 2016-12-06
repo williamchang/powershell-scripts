@@ -6,7 +6,7 @@ Install Sitecore Configure Files
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2016-12-05
+Modified: 2016-12-06
 
 #>
 
@@ -188,6 +188,7 @@ function Invoke-Main {
     Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
     Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
     Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
+    Write-Output ('Debug Preference : {0}' -f $DebugPreference)
     Write-Output ('')
 
     Write-Output ('')
@@ -197,11 +198,11 @@ function Invoke-Main {
     Write-Output ('CMS Media Library Folder Path : {0}' -f $cmsMediaLibraryFolderPath)
     Write-Output ('')
 
-    #Set-WebDebugSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsWebConfigChildPath)
-    #Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseFolderPath $cmsDatabaseFolderPath
-    #Set-SitecoreDataSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -DataFolderPath $cmsDataFolderPath
+    Set-WebDebugSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsWebConfigChildPath)
+    Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseFolderPath $cmsDatabaseFolderPath
+    Set-SitecoreDataSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -DataFolderPath $cmsDataFolderPath
     Set-SitecoreMediaSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -MediaLibraryFolderPath $cmsMediaLibraryFolderPath
-    #Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
+    Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
 }
 
 Invoke-Main

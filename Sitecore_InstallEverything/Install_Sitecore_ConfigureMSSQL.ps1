@@ -27,7 +27,6 @@ function Add-MicrosoftSqlDatabase {
         [string]$DataPath,
         [string]$LogPath
     )
-
     $sqlQuery = 'IF NOT EXISTS (SELECT name FROM master.sys.databases WHERE name = ''{0}'') CREATE DATABASE {0} ON (NAME = ''{0}_Data'', FILENAME = ''{1}'') LOG ON (NAME = ''{0}_Log'', FILENAME = ''{2}'') FOR ATTACH WITH ENABLE_BROKER;' -f $DatabaseName, $DataPath, $LogPath
     $sqlCommand = '{0} -E -Q "{1}"' -f $SqlCmdPath, $sqlQuery
     Invoke-Expression -Command $sqlCommand
@@ -82,13 +81,11 @@ function Invoke-Main {
     Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
     Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
     Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('')
-
-    Write-Output ('')
     Write-Output ('Debug Preference : {0}' -f $DebugPreference)
     Write-Output ('')
 
     Write-Output ('')
+    Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
     Write-Output ('CMS Database Folder Path : {0}' -f $cmsDatabaseFolderPath)
     Write-Output ('')
 
@@ -99,6 +96,7 @@ function Invoke-Main {
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Core.ldf'
 
     Write-Output ('')
+    Write-Output ('Database Name of CMS Database : {0}' -f $sqlDatabaseCoreName)
     Write-Output ('Data Path of CMS Database : {0}' -f $sqlDatabaseDataPath)
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
@@ -112,6 +110,7 @@ function Invoke-Main {
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Master.ldf'
 
     Write-Output ('')
+    Write-Output ('Database Name of CMS Database : {0}' -f $sqlDatabaseMasterName)
     Write-Output ('Data Path of CMS Database : {0}' -f $sqlDatabaseDataPath)
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
@@ -125,6 +124,7 @@ function Invoke-Main {
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Web.ldf'
 
     Write-Output ('')
+    Write-Output ('Database Name of CMS Database : {0}' -f $sqlDatabaseWebName)
     Write-Output ('Data Path of CMS Database : {0}' -f $sqlDatabaseDataPath)
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
@@ -132,6 +132,12 @@ function Invoke-Main {
     Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseWebName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
+
+    Write-Output ('')
+    Write-Output ('Database Core Name of CMS Database : {0}' -f $sqlDatabaseCoreName)
+    Write-Output ('Database Master Name of CMS Database : {0}' -f $sqlDatabaseMasterName)
+    Write-Output ('Database Web Name of CMS Database : {0}' -f $sqlDatabaseWebName)
+    Write-Output ('')
 
     Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseCoreName $sqlDatabaseCoreName -DatabaseMasterName $sqlDatabaseMasterName -DatabaseWebName $sqlDatabaseWebName
 }

@@ -6,7 +6,7 @@ Install Sitecore Configure IIS
 Created by William Chang
 
 Created: 2016-09-09
-Modified: 2016-12-05
+Modified: 2016-12-06
 
 #>
 
@@ -145,9 +145,6 @@ function Invoke-Main {
     Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
     Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
     Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('')
-
-    Write-Output ('')
     Write-Output ('Debug Preference : {0}' -f $DebugPreference)
     Write-Output ('')
 
