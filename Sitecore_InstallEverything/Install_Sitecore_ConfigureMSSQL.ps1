@@ -27,6 +27,9 @@ function Add-MicrosoftSqlDatabase {
         [string]$DataPath,
         [string]$LogPath
     )
+    if(!$SqlCmdPath) {
+        $SqlCmdPath = 'sqlcmd.exe'
+    }
     $sqlQuery = 'IF NOT EXISTS (SELECT name FROM master.sys.databases WHERE name = ''{0}'') CREATE DATABASE {0} ON (NAME = ''{0}_Data'', FILENAME = ''{1}'') LOG ON (NAME = ''{0}_Log'', FILENAME = ''{2}'') FOR ATTACH WITH ENABLE_BROKER;' -f $DatabaseName, $DataPath, $LogPath
     $sqlCommand = '{0} -E -Q "{1}"' -f $SqlCmdPath, $sqlQuery
     Invoke-Expression -Command $sqlCommand
@@ -101,7 +104,7 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseCoreName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseCoreName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 
@@ -115,7 +118,7 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseMasterName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseMasterName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 
@@ -129,7 +132,7 @@ function Invoke-Main {
     Write-Output ('Log Path of CMS Database: {0}' -f $sqlDatabaseLogPath)
     Write-Output ('')
 
-    Add-MicrosoftSqlDatabase -SqlCmdPath $executableSqlcmdPath -DatabaseName $sqlDatabaseWebName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
+    Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseWebName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
     Write-Output ('==========')
 

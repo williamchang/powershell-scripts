@@ -47,7 +47,7 @@ function Add-MicrosoftIisApplicationPool {
         [string]$DotNetVersion
     )
 
-    if (!$DotNetVersion) {
+    if(!$DotNetVersion) {
         $DotNetVersion = 'v4.0'
     }
 
@@ -71,7 +71,7 @@ function Add-MicrosoftIisApplicationPool {
     Write-Debug ('Application Pool Path : {0}' -f $iisApplicationPoolPath)
     Write-Debug ('')
 
-    if (!(Test-Path $iisApplicationPoolPath)) {
+    if(!(Test-Path $iisApplicationPoolPath)) {
         <#
         Create IIS application pool.
         #>
@@ -99,7 +99,7 @@ function Add-MicrosoftIisSite {
         [string]$ApplicationPoolName
     )
 
-    if (!$ApplicationPoolName) {
+    if(!$ApplicationPoolName) {
         $ApplicationPoolName = $Name
     }
 
@@ -127,7 +127,7 @@ function Add-MicrosoftIisSite {
     Write-Debug ('Site Path : {0}' -f $iisSitePath)
     Write-Debug ('')
 
-    if (!(Test-Path $iisSitePath)) {
+    if(!(Test-Path $iisSitePath)) {
         <#
         Create IIS site.
         #>
@@ -149,7 +149,7 @@ function Invoke-Main {
     Write-Output ('')
 
     Write-Output ('')
-    Write-Output ('Hosts File Path : {0}' -f $hostsFilePath)
+    Write-Output ('Microsoft Windows Hosts File Path : {0}' -f $hostsFilePath)
     Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
     Write-Output ('')
 
