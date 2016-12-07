@@ -1,4 +1,6 @@
-# My PowerShell Scripts
+# PowerShell Scripts
+
+Contributions are welcome. Feel free to submit issues if you run into problems or you have suggestions on how to improve it!
 
 Created by [William Chang](http://williamchang.org).
 
@@ -16,6 +18,4 @@ Please see the [Contribution Guide][] for how to develop and contribute.
 
 ## Legal and Licensing
 
-My scripts are licensed under the [LGPL license][].
-
-[LGPL license]: LICENSE.txt
+The scripts are licensed under the [LGPL license](LICENSE.txt).
