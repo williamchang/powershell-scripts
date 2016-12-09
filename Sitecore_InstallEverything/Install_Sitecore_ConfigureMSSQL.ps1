@@ -6,7 +6,7 @@ Install Sitecore Configure MS-SQL
 Created by William Chang
 
 Created: 2016-12-06
-Modified: 2016-12-06
+Modified: 2016-12-09
 
 #>
 
@@ -17,6 +17,7 @@ $currentFolderPath = Get-Location
 $cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
 $cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
 $cmsDatabaseConfigChildPath = Join-Path -Path 'App_Config' -ChildPath 'ConnectionStrings.config'
+$cmsDatabasePrefixName = 'Sandbox'
 
 function Add-MicrosoftSqlDatabase {
     param(
@@ -92,7 +93,7 @@ function Invoke-Main {
 
     Write-Output ('==========')
 
-    $sqlDatabaseCoreName = 'Sitecore_Core'
+    $sqlDatabaseCoreName = '{0}_Sitecore_Core' -f $cmsDatabasePrefixName
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Core.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Core.ldf'
 
@@ -106,7 +107,7 @@ function Invoke-Main {
 
     Write-Output ('==========')
 
-    $sqlDatabaseMasterName = 'Sitecore_Master'
+    $sqlDatabaseMasterName = '{0}_Sitecore_Master' -f $cmsDatabasePrefixName
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Master.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Master.ldf'
 
@@ -120,7 +121,7 @@ function Invoke-Main {
 
     Write-Output ('==========')
 
-    $sqlDatabaseWebName = 'Sitecore_Web'
+    $sqlDatabaseWebName = '{0}_Sitecore_Web' -f $cmsDatabasePrefixName
     $sqlDatabaseDataPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Web.mdf'
     $sqlDatabaseLogPath = Join-Path -Path $cmsDatabaseFolderPath -ChildPath 'Sitecore.Web.ldf'
 
