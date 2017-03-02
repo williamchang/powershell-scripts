@@ -6,16 +6,21 @@ Install Sitecore Configure IIS
 Created by William Chang
 
 Created: 2016-09-09
-Modified: 2016-12-06
+Modified: 2017-03-02
 
 #>
+
+param(
+    [string]$WebrootFolderName = $(throw '-WebrootFolderName is required (eg site1.com).')
+)
 
 $currentScriptName = 'Install_Sitecore_ConfigureIIS'
 $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
-$hostsFilePath = Join-Path -Path $Env:SystemRoot -ChildPath 'System32' | Join-Path -ChildPath 'drivers' | Join-Path -ChildPath 'drivers' | Join-Path -ChildPath 'etc' | Join-Path -ChildPath 'hosts'
-$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
+$hostsFilePath = Join-Path -Path $Env:SystemRoot -ChildPath 'System32' | Join-Path -ChildPath 'drivers' | Join-Path -ChildPath 'etc' | Join-Path -ChildPath 'hosts'
+$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath $WebrootFolderName
+$cmsSiteName = $WebrootFolderName
 
 function Add-MicrosoftWindowsHosts {
     param(
@@ -84,9 +89,8 @@ function Add-MicrosoftIisApplicationPool {
 
         <#
         Set IIS application pool identity.
-
-        processModel.identityType 2 is NetworkService
-        processModel.identityType 4 is ApplicationPoolIdentity
+            processModel.identityType 2 is NetworkService
+            processModel.identityType 4 is ApplicationPoolIdentity
         #>
         Set-ItemProperty -Path $iisApplicationPoolPath -Name 'processModel.identityType' -Value 2
     }
@@ -140,23 +144,38 @@ function Add-MicrosoftIisSite {
     }
 }
 
+function Invoke-FlushDnsCache {
+    Invoke-Expression -Command 'ipconfig.exe /flushdns'
+}
+
+function Invoke-ResetMicrosoftIis {
+    Invoke-Expression -Command 'iisreset.exe'
+}
+
 function Invoke-Main {
-    Write-Output ('')
-    Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
-    Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
-    Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('Debug Preference : {0}' -f $DebugPreference)
-    Write-Output ('')
+    Write-Debug ('')
+    Write-Debug ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
+    Write-Debug ('PowerShell Debug Preference : {0}' -f $DebugPreference)
+    Write-Debug ('Current Date And Time : {0}' -f $currentDateTime)
+    Write-Debug ('Current Folder Path : {0}' -f $currentFolderPath)
+    Write-Debug ('')
 
     Write-Output ('')
     Write-Output ('Microsoft Windows Hosts File Path : {0}' -f $hostsFilePath)
     Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
+    Write-Output ('CMS Site Name : {0}' -f $cmsSiteName)
     Write-Output ('')
 
     Get-MicrosoftIisModule
-    #Add-MicrosoftWindowsHosts -HostsPath (Join-Path -Path $currentFolderPath -ChildPath 'hosts') -Hostname 'local.sandbox1.com'
-    #Add-MicrosoftIisApplicationPool -Name 'site1.com'
-    #Add-MicrosoftIisSite -Name 'site1.com' -WebrootFolderPath $cmsWebrootFolderPath
+    Add-MicrosoftWindowsHosts -HostsPath $hostsFilePath -Hostname ('local.{0}' -f $cmsSiteName)
+    Add-MicrosoftIisApplicationPool -Name $cmsSiteName
+    Add-MicrosoftIisSite -Name $cmsSiteName -WebrootFolderPath $cmsWebrootFolderPath
+    Invoke-FlushDnsCache
+    Invoke-ResetMicrosoftIis
+
+    Write-Output ('')
+    Write-Output ('IIS configured for CMS')
+    Write-Output ('')
 }
 
 Invoke-Main

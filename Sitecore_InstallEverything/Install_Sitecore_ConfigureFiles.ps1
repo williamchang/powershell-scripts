@@ -6,7 +6,7 @@ Install Sitecore Configure Files
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2017-03-01
+Modified: 2017-03-02
 
 #>
 
@@ -212,7 +212,7 @@ function Invoke-Main {
     Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
 
     Write-Output ('')
-    Write-Output ('Files configured CMS')
+    Write-Output ('Files configured for CMS')
     Write-Output ('')
 }
 

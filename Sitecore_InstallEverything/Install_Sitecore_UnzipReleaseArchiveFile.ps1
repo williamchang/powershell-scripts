@@ -6,7 +6,7 @@ Install Sitecore Unzip Release Archive File
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2017-03-01
+Modified: 2017-03-02
 
 #>
 
@@ -81,7 +81,7 @@ function Invoke-Main {
     Invoke-Unzip -Source $zipCmsDataSource -Target $zipCmsDataTarget
 
     Write-Output ('')
-    Write-Output ('Zip Extracted CMS Data')
+    Write-Output ('Zip Extracted for CMS Data')
     Write-Output ('')
 
     Write-Output ('==========')
@@ -97,7 +97,7 @@ function Invoke-Main {
     Invoke-Unzip -Source $zipCmsDatabasesSource -Target $zipCmsDatabasesTarget
 
     Write-Output ('')
-    Write-Output ('Zip Extracted CMS Databases')
+    Write-Output ('Zip Extracted for CMS Databases')
     Write-Output ('')
 
     Write-Output ('==========')
@@ -113,7 +113,7 @@ function Invoke-Main {
     Invoke-Unzip -Source $zipCmsWebsiteSource -Target $zipCmsWebsiteTarget
 
     Write-Output ('')
-    Write-Output ('Zip Extracted CMS Website')
+    Write-Output ('Zip Extracted for CMS Website')
     Write-Output ('')
 
     Write-Output ('==========')
@@ -133,10 +133,14 @@ function Invoke-Main {
     Add-Folder -Target $zipCmsMediaLibraryFilesTarget
 
     Write-Output ('')
-    Write-Output ('Folders Created CMS Media Library')
+    Write-Output ('Folders Created for CMS Media Library')
     Write-Output ('')
 
     Write-Output ('==========')
+
+    Write-Output ('')
+    Write-Output ('Files unzipped for CMS')
+    Write-Output ('')
 }
 
 Invoke-Main

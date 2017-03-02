@@ -6,7 +6,7 @@ Install Sitecore Configure MS-SQL
 Created by William Chang
 
 Created: 2016-12-06
-Modified: 2017-03-01
+Modified: 2017-03-02
 
 #>
 
@@ -158,6 +158,10 @@ function Invoke-Main {
 
     Write-Output ('')
     Write-Output ('==========')
+
+    Write-Output ('')
+    Write-Output ('MSSQL configured for CMS')
+    Write-Output ('')
 }
 
 Invoke-Main
