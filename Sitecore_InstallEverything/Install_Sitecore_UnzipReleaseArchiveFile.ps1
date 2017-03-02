@@ -6,15 +6,19 @@ Install Sitecore Unzip Release Archive File
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2016-12-06
+Modified: 2017-03-01
 
 #>
+
+param(
+    [string]$CmsZipFileBaseName = $(throw '-CmsZipFileBaseName is required (do not include the file extension).')
+)
 
 $currentScriptName = 'Install_Sitecore_UnzipReleaseArchiveFile'
 $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
-$zipFileBaseName = 'Sitecore 8.2 rev. 160729'
+$zipFileBaseName = $CmsZipFileBaseName # eg 'Sitecore 8.2 rev. 161221'
 $zipFileExtensionName = 'zip'
 $zipFileName = '{0}.{1}' -f $zipFileBaseName, $zipFileExtensionName
 $zipFilePath = Join-Path -Path $currentFolderPath -ChildPath $zipFileName
@@ -52,12 +56,12 @@ function Add-Folder {
 }
 
 function Invoke-Main {
-    Write-Output ('')
-    Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
-    Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
-    Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('Debug Preference : {0}' -f $DebugPreference)
-    Write-Output ('')
+    Write-Debug ('')
+    Write-Debug ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
+    Write-Debug ('PowerShell Debug Preference : {0}' -f $DebugPreference)
+    Write-Debug ('Current Date And Time : {0}' -f $currentDateTime)
+    Write-Debug ('Current Folder Path : {0}' -f $currentFolderPath)
+    Write-Debug ('')
 
     Write-Output ('')
     Write-Output ('Zip File Name : {0}' -f $zipFileName)
@@ -131,6 +135,8 @@ function Invoke-Main {
     Write-Output ('')
     Write-Output ('Folders Created CMS Media Library')
     Write-Output ('')
+
+    Write-Output ('==========')
 }
 
 Invoke-Main

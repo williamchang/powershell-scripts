@@ -6,18 +6,24 @@ Install Sitecore Configure MS-SQL
 Created by William Chang
 
 Created: 2016-12-06
-Modified: 2016-12-09
+Modified: 2017-03-01
 
 #>
+
+param(
+    [string]$WebrootFolderName = $(throw '-WebrootFolderName is required (eg site1.com).'),
+    [string]$DatabaseFolderName = $(throw '-DatabaseFolderName is required (eg site1.com.databases).'),
+    [string]$DatabasePrefixName = $(throw '-DatabasePrefixName is required (eg Site1).')
+)
 
 $currentScriptName = 'Install_Sitecore_ConfigureMSSQL'
 $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
-$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
-$cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
+$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath $WebrootFolderName
+$cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath $DatabaseFolderName
 $cmsDatabaseConfigChildPath = Join-Path -Path 'App_Config' -ChildPath 'ConnectionStrings.config'
-$cmsDatabasePrefixName = 'Sandbox'
+$cmsDatabasePrefixName = $DatabasePrefixName
 
 function Add-MicrosoftSqlDatabase {
     param(
@@ -28,6 +34,10 @@ function Add-MicrosoftSqlDatabase {
     )
     if(!$SqlCmdPath) {
         $SqlCmdPath = 'sqlcmd.exe'
+    }
+    $sqlCommandOutput = Invoke-Expression -Command ('{0} -E -Q "SELECT @@VERSION;" 2>&1' -f $SqlCmdPath)
+    if($sqlCommandOutput -like '*Could not open a connection to SQL Server*') {
+        $SqlCmdPath = 'sqlcmd.exe -S .\SQLEXPRESS'
     }
     $sqlQuery = 'IF NOT EXISTS (SELECT name FROM master.sys.databases WHERE name = ''{0}'') CREATE DATABASE {0} ON (NAME = ''{0}_Data'', FILENAME = ''{1}'') LOG ON (NAME = ''{0}_Log'', FILENAME = ''{2}'') FOR ATTACH WITH ENABLE_BROKER;' -f $DatabaseName, $DataPath, $LogPath
     $sqlCommand = '{0} -E -Q "{1}"' -f $SqlCmdPath, $sqlQuery
@@ -79,12 +89,12 @@ function Set-DatabaseSetting {
 }
 
 function Invoke-Main {
-    Write-Output ('')
-    Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
-    Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
-    Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('Debug Preference : {0}' -f $DebugPreference)
-    Write-Output ('')
+    Write-Debug ('')
+    Write-Debug ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
+    Write-Debug ('PowerShell Debug Preference : {0}' -f $DebugPreference)
+    Write-Debug ('Current Date And Time : {0}' -f $currentDateTime)
+    Write-Debug ('Current Folder Path : {0}' -f $currentFolderPath)
+    Write-Debug ('')
 
     Write-Output ('')
     Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
@@ -105,6 +115,7 @@ function Invoke-Main {
 
     Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseCoreName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
+    Write-Output ('')
     Write-Output ('==========')
 
     $sqlDatabaseMasterName = '{0}_Sitecore_Master' -f $cmsDatabasePrefixName
@@ -119,6 +130,7 @@ function Invoke-Main {
 
     Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseMasterName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
+    Write-Output ('')
     Write-Output ('==========')
 
     $sqlDatabaseWebName = '{0}_Sitecore_Web' -f $cmsDatabasePrefixName
@@ -133,6 +145,7 @@ function Invoke-Main {
 
     Add-MicrosoftSqlDatabase -DatabaseName $sqlDatabaseWebName -DataPath $sqlDatabaseDataPath -LogPath $sqlDatabaseLogPath
 
+    Write-Output ('')
     Write-Output ('==========')
 
     Write-Output ('')
@@ -142,6 +155,9 @@ function Invoke-Main {
     Write-Output ('')
 
     Set-DatabaseSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsDatabaseConfigChildPath) -DatabaseCoreName $sqlDatabaseCoreName -DatabaseMasterName $sqlDatabaseMasterName -DatabaseWebName $sqlDatabaseWebName
+
+    Write-Output ('')
+    Write-Output ('==========')
 }
 
 Invoke-Main

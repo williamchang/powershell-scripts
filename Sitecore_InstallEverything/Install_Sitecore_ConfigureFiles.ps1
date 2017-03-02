@@ -6,18 +6,25 @@ Install Sitecore Configure Files
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2016-12-06
+Modified: 2017-03-01
 
 #>
+
+param(
+    [string]$WebrootFolderName = $(throw '-WebrootFolderName is required (eg site1.com).'),
+    [string]$DataFolderName = $(throw '-DataFolderName is required (eg site1.com.data).'),
+    [string]$DatabaseFolderName = $(throw '-DatabaseFolderName is required (eg site1.com.databases).'),
+    [string]$MediaLibraryFolderName = $(throw '-MediaLibraryFolderName is required (eg site1.com.medialibrary).')
+)
 
 $currentScriptName = 'Install_Sitecore_ConfigureFiles'
 $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
-$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
-$cmsDataFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.data'
-$cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
-$cmsMediaLibraryFolderPath = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.medialibrary'
+$cmsWebrootFolderPath = Join-Path -Path $currentFolderPath -ChildPath $WebrootFolderName
+$cmsDataFolderPath = Join-Path -Path $currentFolderPath -ChildPath $DataFolderName
+$cmsDatabaseFolderPath = Join-Path -Path $currentFolderPath -ChildPath $DatabaseFolderName
+$cmsMediaLibraryFolderPath = Join-Path -Path $currentFolderPath -ChildPath $MediaLibraryFolderName
 
 $cmsWebConfigChildPath = 'Web.config'
 $cmsSitecoreConfigChildPath = Join-Path -Path 'App_Config' -ChildPath 'Sitecore.config'
@@ -130,7 +137,7 @@ function Set-SitecoreMediaSetting {
 
         $xmlNode = $xmlDocument.'sitecore'.'settings'.'setting' | Where-Object {$_.'name' -eq 'Media.CacheFolder'}
         $xmlNode.'value' = '$(mediaLibraryFolder)/MediaCache'
- 
+
         $xmlNode = $xmlDocument.'sitecore'.'settings'.'setting' | Where-Object {$_.'name' -eq 'Media.FileFolder'}
         $xmlNode.'value' = '$(mediaLibraryFolder)/MediaFiles'
 
@@ -184,12 +191,12 @@ function Set-SitecoreCmsOnlyMode {
 }
 
 function Invoke-Main {
-    Write-Output ('')
-    Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
-    Write-Output ('Current Date And Time : {0}' -f $currentDateTime)
-    Write-Output ('Current Folder Path : {0}' -f $currentFolderPath)
-    Write-Output ('Debug Preference : {0}' -f $DebugPreference)
-    Write-Output ('')
+    Write-Debug ('')
+    Write-Debug ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
+    Write-Debug ('PowerShell Debug Preference : {0}' -f $DebugPreference)
+    Write-Debug ('Current Date And Time : {0}' -f $currentDateTime)
+    Write-Debug ('Current Folder Path : {0}' -f $currentFolderPath)
+    Write-Debug ('')
 
     Write-Output ('')
     Write-Output ('CMS Webroot Folder Path : {0}' -f $cmsWebrootFolderPath)
@@ -203,6 +210,10 @@ function Invoke-Main {
     Set-SitecoreDataSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -DataFolderPath $cmsDataFolderPath
     Set-SitecoreMediaSetting -ConfigPath (Join-Path -Path $cmsWebrootFolderPath -ChildPath $cmsSitecoreConfigChildPath) -MediaLibraryFolderPath $cmsMediaLibraryFolderPath
     Set-SitecoreCmsOnlyMode -WebrootFolderPath $cmsWebrootFolderPath
+
+    Write-Output ('')
+    Write-Output ('Files configured CMS')
+    Write-Output ('')
 }
 
 Invoke-Main

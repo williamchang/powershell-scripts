@@ -18,7 +18,7 @@ echo BEGIN Operation
 echo.
 
 powershell.exe Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
-powershell.exe -File .\Install_Sitecore.ps1
+powershell.exe -File .\Install_Sitecore.ps1 -ZipFileBaseName "Sitecore 8.2 rev. 161221" -SiteName "site1.com" -DatabasePrefixName "Site1"
 
 echo.
 echo END Operation
