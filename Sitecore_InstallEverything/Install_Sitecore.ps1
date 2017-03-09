@@ -6,7 +6,7 @@ Install Sitecore
 Created by William Chang
 
 Created: 2016-09-02
-Modified: 2017-03-02
+Modified: 2017-03-09
 
 PowerShell Examples:
 powershell.exe Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
@@ -30,8 +30,8 @@ function Invoke-ScriptWithDotNet4 {
     if($PsVersionTable.CLRVersion.Major -lt 4) {
         $env:COMPLUS_version = 'v4.0.30319'
     }
-    .\Install_Sitecore_UnzipReleaseArchiveFile.ps1 -CmsZipFileBaseName $ZipFileBaseName
-    .\Install_Sitecore_ConfigureFiles.ps1 -WebrootFolderName $SiteName -DataFolderName  ('{0}.data' -f $SiteName) -DatabaseFolderName ('{0}.databases' -f $SiteName) -MediaLibraryFolderName ('{0}.medialibrary' -f $SiteName)
+    .\Install_Sitecore_UnzipReleaseArchiveFile.ps1 -CmsZipFileBaseName $ZipFileBaseName -WebrootFolderName $SiteName -DataFolderName  ('{0}.data' -f $SiteName) -MediaLibraryFolderName ('{0}.medialibrary' -f $SiteName) -DatabaseFolderName ('{0}.databases' -f $SiteName)
+    .\Install_Sitecore_ConfigureFiles.ps1 -WebrootFolderName $SiteName -DataFolderName  ('{0}.data' -f $SiteName) -MediaLibraryFolderName ('{0}.medialibrary' -f $SiteName) -DatabaseFolderName ('{0}.databases' -f $SiteName)
     .\Install_Sitecore_ConfigureMSSQL.ps1 -WebrootFolderName $SiteName -DataFolderName  ('{0}.data' -f $SiteName) -DatabaseFolderName ('{0}.databases' -f $SiteName) -DatabasePrefixName $DatabasePrefixName
     .\Install_Sitecore_ConfigureIIS.ps1 -WebrootFolderName $SiteName
 }

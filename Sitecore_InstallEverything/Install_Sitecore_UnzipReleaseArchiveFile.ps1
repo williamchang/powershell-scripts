@@ -6,12 +6,16 @@ Install Sitecore Unzip Release Archive File
 Created by William Chang
 
 Created: 2016-09-03
-Modified: 2017-03-02
+Modified: 2017-03-09
 
 #>
 
 param(
-    [string]$CmsZipFileBaseName = $(throw '-CmsZipFileBaseName is required (do not include the file extension).')
+    [string]$CmsZipFileBaseName = $(throw '-CmsZipFileBaseName is required (do not include the file extension).'),
+    [string]$WebrootFolderName = $(throw '-CmsWebrootFolderName is required (eg site1.com).'),
+    [string]$DataFolderName = $(throw '-CmsDataFolderName is required (eg site1.com.data).'),
+    [string]$MediaLibraryFolderName = $(throw '-CmsMediaLibraryFolderName is required (eg site1.com.medialibrary).'),
+    [string]$DatabaseFolderName = $(throw '-CmsDatabaseFolderName is required (eg site1.com.databases).')
 )
 
 $currentScriptName = 'Install_Sitecore_UnzipReleaseArchiveFile'
@@ -22,6 +26,11 @@ $zipFileBaseName = $CmsZipFileBaseName # eg 'Sitecore 8.2 rev. 161221'
 $zipFileExtensionName = 'zip'
 $zipFileName = '{0}.{1}' -f $zipFileBaseName, $zipFileExtensionName
 $zipFilePath = Join-Path -Path $currentFolderPath -ChildPath $zipFileName
+
+$zipCmsWebrootTargetFolderName = $WebrootFolderName # eg 'site1.com'
+$zipCmsDataTargetFolderName = $DataFolderName # eg 'site1.com.data'
+$zipCmsMediaLibraryTargetFolderName = $MediaLibraryFolderName # eg 'site1.com.medialibrary'
+$zipCmsDatabasesTargetFolderName = $DatabaseFolderName # eg 'site1.com.databases'
 
 function Get-ZipPaths {
     param(
@@ -71,7 +80,7 @@ function Invoke-Main {
     Write-Output ('==========')
 
     $zipCmsDataSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Data'
-    $zipCmsDataTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.data'
+    $zipCmsDataTarget = Join-Path -Path $currentFolderPath -ChildPath $zipCmsDataTargetFolderName
 
     Write-Output ('')
     Write-Output ('Zip Source of CMS Data : {0}' -f $zipCmsDataSource)
@@ -87,7 +96,7 @@ function Invoke-Main {
     Write-Output ('==========')
 
     $zipCmsDatabasesSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Databases'
-    $zipCmsDatabasesTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.databases'
+    $zipCmsDatabasesTarget = Join-Path -Path $currentFolderPath -ChildPath $zipCmsDatabasesTargetFolderName
 
     Write-Output ('')
     Write-Output ('Zip Source of CMS Databases : {0}' -f $zipCmsDatabasesSource)
@@ -102,23 +111,23 @@ function Invoke-Main {
 
     Write-Output ('==========')
 
-    $zipCmsWebsiteSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Website'
-    $zipCmsWebsiteTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com'
+    $zipCmsWebrootSource = Join-Path -Path $zipFilePath -ChildPath $zipFileBaseName | Join-Path -ChildPath 'Website'
+    $zipCmsWebrootTarget = Join-Path -Path $currentFolderPath -ChildPath $zipCmsWebrootTargetFolderName
 
     Write-Output ('')
-    Write-Output ('Zip Source of CMS Website : {0}' -f $zipCmsWebsiteSource)
-    Write-Output ('Zip Target of CMS Website : {0}' -f $zipCmsWebsiteTarget)
+    Write-Output ('Zip Source of CMS Webroot : {0}' -f $zipCmsWebrootSource)
+    Write-Output ('Zip Target of CMS Webroot : {0}' -f $zipCmsWebrootTarget)
     Write-Output ('')
 
-    Invoke-Unzip -Source $zipCmsWebsiteSource -Target $zipCmsWebsiteTarget
+    Invoke-Unzip -Source $zipCmsWebrootSource -Target $zipCmsWebrootTarget
 
     Write-Output ('')
-    Write-Output ('Zip Extracted for CMS Website')
+    Write-Output ('Zip Extracted for CMS Webroot')
     Write-Output ('')
 
     Write-Output ('==========')
 
-    $zipCmsMediaLibraryTarget = Join-Path -Path $currentFolderPath -ChildPath 'site1.com.medialibrary'
+    $zipCmsMediaLibraryTarget = Join-Path -Path $currentFolderPath -ChildPath $zipCmsMediaLibraryTargetFolderName
     $zipCmsMediaLibraryCacheTarget = Join-Path -Path $zipCmsMediaLibraryTarget -ChildPath 'MediaCache'
     $zipCmsMediaLibraryFilesTarget = Join-Path -Path $zipCmsMediaLibraryTarget -ChildPath 'MediaFiles'
 
