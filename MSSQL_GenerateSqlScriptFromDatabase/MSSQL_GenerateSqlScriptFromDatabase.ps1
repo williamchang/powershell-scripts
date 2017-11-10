@@ -6,7 +6,7 @@ Generate SQL Script From Microsoft SQL Server Database
 Created by William Chang
 
 Created: 2014-08-27
-Modified: 2017-11-08
+Modified: 2017-11-10
 
 SQLCMD Examples:
 sqlcmd.exe -x -i C:\path\to\file.sql
@@ -24,6 +24,12 @@ http://samritchie.net/2011/03/31/vsdbcmd-deployment-to-sql-azure/
 http://technet.microsoft.com/en-us/library/ms186472(v=sql.105).aspx
 http://msdn.microsoft.com/en-us/library/Microsoft.SqlServer.Management.Smo.ScriptingOptions_properties.aspx
 http://msdn.microsoft.com/en-us/library/microsoft.sqlserver.management.smo.transferbase_properties.aspx
+
+Microsoft SQL Server - Generate and Publish Scripts - Advanced Scripting Options
+ANSI Padding : True
+Script for Server Version : SQL Server 2012
+Types of data to script : Schema and data
+Script Triggers : True
 
 #>
 
@@ -174,6 +180,7 @@ $mssqlScriptingOptions.IncludeDatabaseRoleMemberships = $true # default false
 $mssqlScriptingOptions.IncludeHeaders = $true # default false
 $mssqlScriptingOptions.IncludeIfNotExists = $false # default false
 $mssqlScriptingOptions.Indexes = $true # default false
+$mssqlScriptingOptions.NoCollation = $true # default false
 $mssqlScriptingOptions.NoCommandTerminator = $false # default false
 $mssqlScriptingOptions.SchemaQualify = $true # default true
 $mssqlScriptingOptions.ScriptBatchTerminator = $false # default false
