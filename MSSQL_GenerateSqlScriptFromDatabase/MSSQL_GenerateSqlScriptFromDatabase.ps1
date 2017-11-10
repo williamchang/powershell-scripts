@@ -6,7 +6,7 @@ Generate SQL Script From Microsoft SQL Server Database
 Created by William Chang
 
 Created: 2014-08-27
-Modified: 2015-01-09
+Modified: 2017-11-08
 
 SQLCMD Examples:
 sqlcmd.exe -x -i C:\path\to\file.sql
@@ -27,9 +27,16 @@ http://msdn.microsoft.com/en-us/library/microsoft.sqlserver.management.smo.trans
 
 #>
 
+param(
+    [string]$SqlServerName = $null,
+    [string]$SqlDatabaseName = $null,
+    [string]$SqlScriptDatabaseName = $null,
+    [switch]$SqlVariableSubstitution = $false
+)
+
 Clear-Host
 
-$currentScriptName = "MSSQL_GenerateSqlScriptFromDatabase"
+$currentScriptName = 'MSSQL_GenerateSqlScriptFromDatabase'
 $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
@@ -39,146 +46,174 @@ $logFilePath = '{0}\{1}' -f $currentFolderPath, $logFileName
 Start-Transcript -Path $logFilePath -Append
 
 $executableSqlcmdPath = 'sqlcmd.exe'
-$sqlServerName = ''
-$sqlDatabaseName = ''
-$sqlScriptDatabaseName = ''
 $sqlScriptFilePath = ''
 $sqlBatchFilePath = ''
 
-Write-Host ("`n")
-Write-Host ("Current Date And Time : {0}" -f $currentDateTime)
-Write-Host ("Current Folder Path : {0}" -f $currentFolderPath)
-Write-Host ("Executable SQLCMD Path : {0}" -f $executableSqlcmdPath)
-Write-Host ("`n")
+Write-Output ('')
+Write-Output ('PowerShell Installation Path : {0}' -f $PsHome)
+Write-Output ('PowerShell Version : {0}' -f $PsVersionTable.PSVersion)
+Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
+Write-Output ('PowerShell Debug Preference : {0}' -f $DebugPreference)
+Write-Output ('Executable SQLCMD Path : {0}' -f $executableSqlcmdPath)
+Write-Output ('')
 
 try
 {
-    Invoke-Expression -Command ("{0} -E -Q ""SET NOCOUNT ON;SELECT @@VERSION;"" -h-1" -f $executableSqlcmdPath)
+    Write-Output ('')
+    Write-Output ('')
+
+    <# Use PowerShell array operator. #>
+    $executableCommandParameters = @('-E', '-Q', "SET NOCOUNT ON;SELECT @@VERSION;", '-h-1')
+
+    <# Use PowerShell call operator aka invocation operator. #>
+    & $executableSqlcmdPath $executableCommandParameters
 }
 catch [System.Management.Automation.CommandNotFoundException]
 {
-    Write-Host ("`n`nSQLCMD executable not found.`n`n")
-    exit
+    Write-Output ('SQLCMD executable not found.')
+    Write-Output ('')
+    Exit
 }
 
-$sqlServerName = Read-Host "What is the database server name or address?"
-Write-Host ("`n`n")
-if(!$sqlServerName -or $sqlServerName.length -lt 3)
+if(!$SqlServerName -and !$SqlDatabaseName -and !$SqlScriptDatabaseName)
 {
-    Write-Host ("`n`nInvalid input of server name or address.`n`n")
-    exit
+    Write-Output ('')
+    Write-Output ('')
+
+    $SqlServerName = Read-Host -Prompt 'What is the database server name or address?'
+    Write-Host ('')
+    Write-Host ('')
+    if(!$SqlServerName -or $SqlServerName.length -lt 3)
+    {
+        Write-Host ('')
+        Write-Host ('Invalid input of server name or address.') -ForegroundColor Red
+        Write-Host ('')
+        Exit
+    }
+
+    $SqlDatabaseName = Read-Host -Prompt 'What is the database name in the database server?'
+    Write-Host ('')
+    Write-Host ('')
+    if(!$SqlDatabaseName -or $SqlDatabaseName.length -lt 3)
+    {
+        Write-Host ('')
+        Write-Host ('Invalid input of database name.') -ForegroundColor Red
+        Write-Host ('')
+        Exit
+    }
+
+    $SqlScriptDatabaseName = Read-Host -Prompt 'What database name to put into the SQL script?'
+    Write-Host ('')
+    Write-Host ('')
+    if(!$SqlScriptDatabaseName -or $SqlScriptDatabaseName.length -lt 3)
+    {
+        $SqlScriptDatabaseName = $SqlDatabaseName
+    }
 }
 
-$sqlDatabaseName = Read-Host "What is the database name?"
-Write-Host ("`n`n")
-if(!$sqlDatabaseName -or $sqlDatabaseName.length -lt 3)
+if(!$SqlServerName) {Throw '-SqlServerName is required.'}
+if(!$SqlDatabaseName) {Throw '-SqlDatabaseName is required.'}
+if(!$SqlScriptDatabaseName) {$SqlScriptDatabaseName = $SqlDatabaseName}
+
+$sqlScriptFilePath = '{0}\{1}.{2}.sql' -f $currentFolderPath, $SqlScriptDatabaseName, $currentDateTime
+$sqlBatchFilePath = '{0}\{1}.{2}.bat' -f $currentFolderPath, $SqlScriptDatabaseName, $currentDateTime
+
+Write-Output ('')
+Write-Output ('SQL Server Name : {0}' -f $SqlServerName)
+Write-Output ('SQL Database Name : {0}' -f $SqlDatabaseName)
+Write-Output ('SQL Script Database Name : {0}' -f $SqlScriptDatabaseName)
+Write-Output ('SQL Script File Path : {0}' -f $sqlScriptFilePath)
+Write-Output ('SQL Batch File Path : {0}' -f $sqlBatchFilePath)
+Write-Output ('')
+
+Write-Output ('')
+Write-Output ('')
+$executableCommandParameters = @('-S', $SqlServerName, '-E', '-Q', ("sp_dbcmptlevel {0}" -f $SqlDatabaseName), '-h-1', '-W')
+$sqlTestDatabaseCommandOutput = & $executableSqlcmdPath $executableCommandParameters 2>&1
+if($sqlTestDatabaseCommandOutput -like '*not open a connection*')
 {
-    Write-Host ("`n`nInvalid input of database name.`n`n")
-    exit
+    Write-Output ('The database server is not found or not accessible.')
+    Write-Output ('')
+    Exit
 }
-
-$sqlScriptDatabaseName = Read-Host "What database name for the SQL script?"
-Write-Host ("`n`n")
-if(!$sqlScriptDatabaseName -or $sqlScriptDatabaseName.length -lt 3)
+elseif($sqlTestDatabaseCommandOutput -like '*valid database name*')
 {
-    $sqlScriptDatabaseName = $sqlDatabaseName
+    Write-Output ('The database does not exist.')
+    Write-Output ('')
+    Exit
 }
-
-$sqlScriptFilePath = '{0}\{1}.{2}.sql' -f $currentFolderPath, $sqlScriptDatabaseName, $currentDateTime
-$sqlBatchFilePath = '{0}\{1}.{2}.bat' -f $currentFolderPath, $sqlScriptDatabaseName, $currentDateTime
-
-Write-Host ("`n`n")
-Write-Host ("SQL Server Name : {0}" -f $sqlServerName)
-Write-Host ("SQL Database Name : {0}" -f $sqlDatabaseName)
-Write-Host ("SQL Script Database Name : {0}" -f $sqlScriptDatabaseName)
-Write-Host ("SQL Script File Path : {0}" -f $sqlScriptFilePath)
-Write-Host ("SQL Batch File Path : {0}" -f $sqlBatchFilePath)
-Write-Host ("`n`n")
-
-$sqlTestDatabaseCommand = "{0} -S {1} -E -Q ""sp_dbcmptlevel {2}"" -h-1 -W" -f $executableSqlcmdPath, $sqlServerName, $sqlDatabaseName
-$sqlTestDatabaseCommandOutput = Invoke-Expression -Command $sqlTestDatabaseCommand | Out-String
-Write-Host ("`n`n")
-if($sqlTestDatabaseCommandOutput -like "*not open a connection*")
-{
-    Write-Host ("`n`nThe database server is not found or not accessible.`n`n")
-    exit
-}
-elseif($sqlTestDatabaseCommandOutput -like "*valid database name*")
-{
-    Write-Host ("`n`nThe database does not exist.`n`n")
-    exit
-}
+Write-Output ('')
+Write-Output ('')
 
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMO') | Out-Null
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.SMOExtended') | Out-Null
 
-$mssqlServer = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.Server' -ArgumentList $sqlServerName
+$mssqlServer = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.Server' -ArgumentList $SqlServerName
 if($mssqlServer.Version -eq  $null) {Throw 'The database server is not found or not accessible.'}
-$db = $mssqlServer.databases[$sqlDatabaseName]
-if($db.name -ne $sqlDatabaseName) {Throw 'The database does not exist.'}
+
+$mssqlDatabase = $mssqlServer.Databases[$SqlDatabaseName]
+if($mssqlDatabase.Name -ne $SqlDatabaseName) {Throw 'The database does not exist.'}
+
+<#
+$mssqlDatabaseObjects = $mssqlDatabase.Tables
+$mssqlDatabaseObjects += $mssqlDatabase.Views
+$mssqlDatabaseObjects += $mssqlDatabase.StoredProcedures
+$mssqlDatabaseObjects += $mssqlDatabase.UserDefinedFunctions
+#>
 
 $mssqlScriptingOptions = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.ScriptingOptions'
 $mssqlScriptingOptions.AnsiPadding = $true # default true
 $mssqlScriptingOptions.AppendToFile = $true # default false
 $mssqlScriptingOptions.ClusteredIndexes = $true # default false
-$mssqlScriptingOptions.ExtendedProperties = $true # default true
-$mssqlScriptingOptions.Default = $true # default true
+$mssqlScriptingOptions.Encoding = [System.Text.Encoding]::UTF8
+$mssqlScriptingOptions.ExtendedProperties = $true # default false
+$mssqlScriptingOptions.FileName = $sqlScriptFilePath
+$mssqlScriptingOptions.Default = $true # default false
 $mssqlScriptingOptions.DriAll = $true # default false
-$mssqlScriptingOptions.IncludeHeaders = $false # default true
-$mssqlScriptingOptions.IncludeIfNotExists = $true # default false
+$mssqlScriptingOptions.IncludeDatabaseRoleMemberships = $true # default false
+$mssqlScriptingOptions.IncludeHeaders = $true # default false
+$mssqlScriptingOptions.IncludeIfNotExists = $false # default false
 $mssqlScriptingOptions.Indexes = $true # default false
 $mssqlScriptingOptions.NoCommandTerminator = $false # default false
 $mssqlScriptingOptions.SchemaQualify = $true # default true
+$mssqlScriptingOptions.ScriptBatchTerminator = $false # default false
+$mssqlScriptingOptions.Statistics = $false # default false
+$mssqlScriptingOptions.TargetDatabaseEngineType = [Microsoft.SqlServer.Management.Common.DatabaseEngineType]::Standalone
+$mssqlScriptingOptions.TargetServerVersion = [Microsoft.SqlServer.Management.Smo.SqlServerVersion]::Version110
 $mssqlScriptingOptions.ToFileOnly = $true # default false
 $mssqlScriptingOptions.Triggers = $true # default false
 $mssqlScriptingOptions.WithDependencies = $true # default true
+$mssqlScriptingOptions.XmlIndexes = $true # default false
 
-$mssqlScriptingOptions.TargetDatabaseEngineType = "Standalone"
-$mssqlScriptingOptions.TargetServerVersion = "Version100"
-$mssqlScriptingOptions.FileName = $sqlScriptFilePath
-
-$mssqlTransfer = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.Transfer' -ArgumentList $db
+$mssqlTransfer = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.Transfer' -ArgumentList $mssqlDatabase
 $mssqlTransfer.CopyAllObjects = $true # default false
-$mssqlTransfer.CreateTargetDatabase = $true # default false
 $mssqlTransfer.Options = $mssqlScriptingOptions
-
-$mssqlScripter = New-Object -TypeName 'Microsoft.SqlServer.Management.Smo.Scripter' -ArgumentList $mssqlServer
-$mssqlScripter.Options = $mssqlScriptingOptions
 
 # Generate Create Database Script
 @"
-/* Script Date : {1} */
+/* Script Date: {1} */
+/****** Object:  Database [{0}] ******/
 CREATE DATABASE [{0}]
-GO
-ALTER DATABASE [{0}] SET COMPATIBILITY_LEVEL = 100
 GO
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 BEGIN
 EXEC [{0}].[dbo].[sp_fulltext_database] @action = 'enable'
 END
 GO
-"@ -f $sqlScriptDatabaseName, $currentDateTime | Out-File -Append -FilePath $sqlScriptFilePath
+ALTER DATABASE [{0}] SET COMPATIBILITY_LEVEL = 110
+GO
+"@ -f $SqlScriptDatabaseName, $currentDateTime | Out-File -Encoding 'UTF8' -Append -FilePath $sqlScriptFilePath
 
 # Generate Use Database Script
-'USE [{0}]' -f $sqlScriptDatabaseName | Out-File -Append -FilePath $sqlScriptFilePath
-'GO' | Out-File -Append -FilePath $sqlScriptFilePath
+'USE [{0}]' -f $SqlScriptDatabaseName | Out-File -Encoding 'UTF8' -Append -FilePath $sqlScriptFilePath
+'GO' | Out-File -Encoding 'UTF8' -Append -FilePath $sqlScriptFilePath
 
-# Generate Drop Schema Objects Script
-$mssqlTransfer.Options.ScriptData = $false
+# Generate Schema And Data Script
+$mssqlTransfer.Options.ScriptOwner = $false # default false
+$mssqlTransfer.Options.ScriptData = $true
 $mssqlTransfer.Options.ScriptSchema = $true
-$mssqlTransfer.Options.ScriptDrops = $true
-$mssqlTransfer.ScriptTransfer()
-
-# Generate Create Schema Objects Script
-$mssqlTransfer.Options.ScriptData = $false
-$mssqlTransfer.Options.ScriptSchema = $true
-$mssqlTransfer.Options.ScriptDrops = $false
-$mssqlTransfer.ScriptTransfer()
-
-# Generate Insert Data Script
-$mssqlScripter.Options.ScriptData = $true
-$mssqlScripter.Options.ScriptSchema = $false
-$mssqlScripter.EnumScript([Microsoft.SqlServer.Management.Smo.SqlSmoObject[]]$db.Tables)
+$mssqlTransfer.Options.ScriptDrops = $false # default false
+$mssqlTransfer.EnumScriptTransfer()
 
 function SearchAndReplace($filePath)
 {
@@ -186,7 +221,10 @@ function SearchAndReplace($filePath)
 }
 
 # Search And Replace SQL Variable Substitution
-#SearchAndReplace($sqlScriptFilePath)
+if($SqlVariableSubstitution)
+{
+    SearchAndReplace($sqlScriptFilePath)
+}
 
 # Create Microsoft Windows Batch File To Run Database Script
 @"
@@ -204,7 +242,7 @@ echo.
 echo BEGIN Operation
 echo.
 
-sqlcmd.exe -x -s local -i {0}.{1}.sql
+sqlcmd.exe -S 127.0.0.1 -x -i {0}.{1}.sql
 
 echo.
 echo END Operation
@@ -217,6 +255,10 @@ echo.
 
 :: Keep command window open.
 pause
-"@ -f $sqlScriptDatabaseName, $currentDateTime | Out-File -FilePath $sqlBatchFilePath
+"@ -f $SqlScriptDatabaseName, $currentDateTime | Out-File -Encoding 'ASCII' -FilePath $sqlBatchFilePath
+
+Write-Output ('')
+Write-Output ('The operation completed successfully.')
+Write-Output ('')
 
 Stop-Transcript
