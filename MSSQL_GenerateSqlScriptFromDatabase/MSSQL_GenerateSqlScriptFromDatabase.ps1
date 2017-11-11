@@ -47,7 +47,7 @@ $currentDateTime = Get-Date -Format 'yyyyMMddHHmm'
 $currentFolderPath = Get-Location
 
 #Stop-Transcript | Out-Null
-$logFileName = '{0}.{1}.log' -f $currentScriptName, $currentDateTime
+$logFileName = '{0}.{1}.log.txt' -f $currentScriptName, $currentDateTime
 $logFilePath = '{0}\{1}' -f $currentFolderPath, $logFileName
 Start-Transcript -Path $logFilePath -Append
 
@@ -249,7 +249,7 @@ echo.
 echo BEGIN Operation
 echo.
 
-sqlcmd.exe -S 127.0.0.1 -x -i {0}.{1}.sql
+sqlcmd.exe -S 127.0.0.1 -a 32767 -x -i {0}.{1}.sql -o {0}.{1}.log.txt
 
 echo.
 echo END Operation
