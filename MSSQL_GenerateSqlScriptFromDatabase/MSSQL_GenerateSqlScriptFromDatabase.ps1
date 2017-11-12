@@ -51,16 +51,14 @@ $logFileName = '{0}.{1}.log.txt' -f $currentScriptName, $currentDateTime
 $logFilePath = '{0}\{1}' -f $currentFolderPath, $logFileName
 Start-Transcript -Path $logFilePath -Append
 
-$executableSqlcmdPath = 'sqlcmd.exe'
-$sqlScriptFilePath = ''
-$sqlBatchFilePath = ''
+$executableSqlcmdFilePath = 'sqlcmd.exe'
 
 Write-Output ('')
 Write-Output ('PowerShell Installation Path : {0}' -f $PsHome)
 Write-Output ('PowerShell Version : {0}' -f $PsVersionTable.PSVersion)
 Write-Output ('PowerShell Common Language Runtime Version : {0}' -f $PsVersionTable.CLRVersion)
 Write-Output ('PowerShell Debug Preference : {0}' -f $DebugPreference)
-Write-Output ('Executable SQLCMD Path : {0}' -f $executableSqlcmdPath)
+Write-Output ('Executable SQLCMD File Path : {0}' -f $executableSqlcmdFilePath)
 Write-Output ('')
 
 try
@@ -72,7 +70,7 @@ try
     $executableCommandParameters = @('-E', '-Q', "SET NOCOUNT ON;SELECT @@VERSION;", '-h-1')
 
     <# Use PowerShell call operator aka invocation operator. #>
-    & $executableSqlcmdPath $executableCommandParameters
+    & $executableSqlcmdFilePath $executableCommandParameters
 }
 catch [System.Management.Automation.CommandNotFoundException]
 {
@@ -135,7 +133,7 @@ Write-Output ('')
 Write-Output ('')
 Write-Output ('')
 $executableCommandParameters = @('-S', $SqlServerName, '-E', '-Q', ("sp_dbcmptlevel {0}" -f $SqlDatabaseName), '-h-1', '-W')
-$sqlTestDatabaseCommandOutput = & $executableSqlcmdPath $executableCommandParameters 2>&1
+$sqlTestDatabaseCommandOutput = & $executableSqlcmdFilePath $executableCommandParameters 2>&1
 if($sqlTestDatabaseCommandOutput -like '*not open a connection*')
 {
     Write-Output ('The database server is not found or not accessible.')
